@@ -4,6 +4,7 @@
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
 #define LED_PIN 15
+#define BUZZER_PIN 2
 
 Servo myservo;
 const char *ssid = "SmartLock";        //  *** 書き換え必要 ***
@@ -41,6 +42,7 @@ void setup()
 {
   Serial.begin(115200);
   pinMode(LED_PIN, OUTPUT);
+  pinMode(BUZZER_PIN,OUTPUT);
   // SPIFFSのセットアップ
   if (!SPIFFS.begin(true))
   {
@@ -78,6 +80,7 @@ void setup()
       {
         request->send(SPIFFS, "/index.html");
         digitalWrite(LED_PIN, HIGH);
+        tone(BUZZER_PIN,494,1000);
         Serial.println("on");
         ON_Servo();
       });
