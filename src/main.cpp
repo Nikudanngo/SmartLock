@@ -5,6 +5,9 @@
 #include "SPIFFS.h"
 #define LED_PIN 15
 #define BUZZER_PIN 2
+#define SWITCH_PIN 4
+int a=1;
+int i=1;
 
 Servo myservo;
 const char *ssid = "SmartLock";        //  *** 書き換え必要 ***
@@ -41,6 +44,7 @@ void OFF_Servo()
 void setup()
 {
   Serial.begin(115200);
+  pinMode(SWITCH_PIN,INPUT);
   pinMode(LED_PIN, OUTPUT);
   pinMode(BUZZER_PIN,OUTPUT);
   // SPIFFSのセットアップ
@@ -109,5 +113,30 @@ void setup()
 
 void loop()
 {
-  // 何もしない
+  if (digitalRead(SWITCH_PIN)==HIGH)
+  {
+    while(i>0)
+    {
+    i=i-1;
+    digitalWrite(LED_PIN, HIGH);
+    tone(BUZZER_PIN,494,1000);
+    ON_Servo();
+    }
+    if(a==0)
+    {
+    a=a+1;
+    }
+  }
+  if(digitalRead(SWITCH_PIN)==LOW)
+  {
+    while(a>0){
+    a=a-1;
+    digitalWrite(LED_PIN, LOW);
+    OFF_Servo();
+    }
+    if(i==0){
+      i=i+1;
+      }
+  }
 }
+  // 何もしない
