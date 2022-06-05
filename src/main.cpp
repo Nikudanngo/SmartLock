@@ -6,8 +6,8 @@
 #define LED_PIN 15
 #define BUZZER_PIN 2
 #define SWITCH_PIN 4
-int a=1;
-int i=1;
+
+bool isRun1st = false;
 
 Servo myservo;
 const char *ssid = "SmartLock";        //  *** 書き換え必要 ***
@@ -19,34 +19,35 @@ AsyncWebServer server(80); // ポート設定
 
 void ON_Servo()
 {
-  myservo.attach(13);
+  digitalWrite(LED_PIN, HIGH);
+  tone(BUZZER_PIN, 494, 1000);
   myservo.write(90); // 初期化
   delay(100);
-  myservo.write(180); // 開錠
-  delay(1000);
+  myservo.write(190); // 開錠
+  delay(1500);
   myservo.write(90); // ホームポジション
-  delay(1000);
-  myservo.detach();
+  delay(1500);
 }
 
 void OFF_Servo()
 {
-  myservo.attach(13);
+  digitalWrite(LED_PIN, LOW);
   myservo.write(90); // 初期化
   delay(100);
   myservo.write(0); // 閉鎖
-  delay(1000);
+  delay(1500);
   myservo.write(90); // ホームポジション
-  delay(1000);
-  myservo.detach();
+  delay(1500);
 }
 
 void setup()
 {
   Serial.begin(115200);
-  pinMode(SWITCH_PIN,INPUT);
+  myservo.attach(13);
+  myservo.write(90); // 初期化
+  pinMode(SWITCH_PIN, INPUT);
   pinMode(LED_PIN, OUTPUT);
-  pinMode(BUZZER_PIN,OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
   // SPIFFSのセットアップ
   if (!SPIFFS.begin(true))
   {
@@ -72,19 +73,15 @@ void setup()
       "/", HTTP_GET,
       [](AsyncWebServerRequest *request)
       {
-        request->send(SPIFFS, "/index.html");
-        myservo.attach(13);
+        request->send(SPIFFS, "/home.html");
         myservo.write(90);
         delay(100);
-        myservo.detach();
       });
   server.on(
       "/on", HTTP_GET,
       [](AsyncWebServerRequest *request)
       {
-        request->send(SPIFFS, "/index.html");
-        digitalWrite(LED_PIN, HIGH);
-        tone(BUZZER_PIN,494,1000);
+        request->send(SPIFFS, "/on.html");
         Serial.println("on");
         ON_Servo();
       });
@@ -93,8 +90,7 @@ void setup()
       "/off", HTTP_GET,
       [](AsyncWebServerRequest *request)
       {
-        request->send(SPIFFS, "/index.html");
-        digitalWrite(LED_PIN, LOW);
+        request->send(SPIFFS, "/off.html");
         Serial.println("off");
         OFF_Servo();
       });
@@ -113,30 +109,24 @@ void setup()
 
 void loop()
 {
-  if (digitalRead(SWITCH_PIN)==HIGH)
+  if (digitalRead(SWITCH_PIN) == HIGH)
   {
-    while(i>0)
+    if (isRun1st == false)
     {
-    i=i-1;
-    digitalWrite(LED_PIN, HIGH);
-    tone(BUZZER_PIN,494,1000);
-    ON_Servo();
-    }
-    if(a==0)
-    {
-    a=a+1;
+      isRun1st = true;
+      ON_Servo();
     }
   }
-  if(digitalRead(SWITCH_PIN)==LOW)
+  else
   {
-    while(a>0){
-    a=a-1;
-    digitalWrite(LED_PIN, LOW);
-    OFF_Servo();
+    if (isRun1st == true)
+    {
+      isRun1st = false;
+      OFF_Servo();
     }
-    if(i==0){
-      i=i+1;
-      }
+    else
+    {
+      // do nothing
+    }
   }
 }
-  // 何もしない
