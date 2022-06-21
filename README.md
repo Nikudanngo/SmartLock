@@ -1,5 +1,9 @@
 # ESP32 を使用した SmartLock
 
+## 紹介動画
+
+[!['youtube'](https://user-images.githubusercontent.com/64085231/174844868-b55665d5-cf4c-4e66-a4ed-96762f2e12db.jpg)](https://youtu.be/KLD8f-YzRVg)
+
 ## 仕組み
 
 1. ESP32 でアクセスポイント(wifi)を立てる
